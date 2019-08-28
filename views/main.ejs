@@ -1,0 +1,145 @@
+<% include ./hf/header.ejs %>
+<div class="page-content header-clear-medium">
+    <div id='cardList'>
+    </div>
+
+    <div class="content-boxed content-boxed-full">
+        <div class="content bottom-0">
+            <div class="link-list link-list-2">
+                <a href="component-ad-boxes.html">
+                    <i class="fa fa-dollar-sign bg-green1-dark round-tiny"></i>
+                    <span>광고 보기</span>
+                    <strong>광고를 보고 포인트를 쌓으세요</strong>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                <a href="component-typography.html" class="no-border">
+                    <i class="fa fa-bold bg-blue2-dark round-tiny"></i>
+                    <span>가상화페 투자</span>
+                    <strong>가상화페에 투자하여 인생역전의....</strong>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var jwtToken = sessionStorage.getItem('jwtToken');
+    $.ajax({
+        url: 'http://localhost:3000/getUser',
+        type: 'POST',
+        headers: {
+            'x-access-token': jwtToken
+        },
+        data: {},
+        success: function (data) {
+            console.log(data);
+            var resultList = data.res_list;
+            for (var i = 0; i < resultList.length; i++) {
+                var resultElement = resultList[i];
+                $("#cardList").append(
+                    '    <div data-height="150" style="height : 150px" class="caption caption-margins round-medium shadow-large">\n' +
+                    '        <div class="caption-center right-15 top-15 text-right">\n' +
+                    '            <a href="/balance?fin_use_num=' + resultElement.fintech_use_num + '" class="back-button button button-xs button-round-huge bg-highlight">잔액조회</a>\n' +
+                    '            <a href="#" class="button button-xs button-round-huge bg-highlight">결제</a>\n' +
+                    '            <a href="#" onclick="deleteAccount(\'' + resultElement.fintech_use_num + '\')" class="button button-xs button-round-huge bg-highlight">X</a>\n' +
+                    '        </div>\n' +
+                    '        <div class="caption-center left-15 text-left">\n' +
+                    '            <h1 class="color-white bolder">' + resultElement.account_alias + '</h1>\n' +
+                    '            <p class="under-heading color-white opacity-90 bottom-0">\n' +
+                    '                ' + resultElement.fintech_use_num +
+                    '            </p>\n' +
+                    '        </div>\n' +
+                    '        <div class="caption-overlay bg-black opacity-70"></div>\n' +
+                    '        <div class="caption-bg bg-18"></div>\n' +
+                    '    </div>\n'
+                )
+            }
+        }
+    })
+
+    function deleteAccount(finusernum) {
+        console.log("hello");
+        console.log(finusernum+" test")
+        var jwtToken = sessionStorage.getItem('jwtToken');
+        $.ajax({
+            url: 'http://localhost:3000/deleteAccount',
+            type: 'POST',
+            headers: {
+                'x-access-token': jwtToken
+            },
+            data: {
+                finNum : finusernum
+            },
+            success: function (data) {
+                if(data == 1){
+                    window.reload();
+                }
+            }
+        })
+
+    }
+</script>
+<% include ./hf/footer.ejs %>
+<% include ./hf/header.ejs %>
+<div class="page-content header-clear-medium">
+    <div id='cardList'>
+    </div>
+
+    <div class="content-boxed content-boxed-full">
+        <div class="content bottom-0">
+            <div class="link-list link-list-2">
+                <a href="component-ad-boxes.html">
+                    <i class="fa fa-dollar-sign bg-green1-dark round-tiny"></i>
+                    <span>광고 보기</span>
+                    <strong>광고를 보고 포인트를 쌓으세요</strong>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                <a href="component-typography.html" class="no-border">
+                    <i class="fa fa-bold bg-blue2-dark round-tiny"></i>
+                    <span>가상화페 투자</span>
+                    <strong>가상화페에 투자하여 인생역전의....</strong>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var jwtToken = sessionStorage.getItem('jwtToken');
+    $.ajax({
+        url: 'http://localhost:3000/getUser',
+        type: 'POST',
+        headers: {
+            'x-access-token': jwtToken
+        },
+        data: {},
+        success: function (data) {
+            console.log(data);
+            var resultList = data.res_list;
+            for (var i = 0; i < resultList.length; i++) {
+                var resultElement = resultList[i];
+                $("#cardList").append(
+                    '    <div data-height="150" style="height : 150px" class="caption caption-margins round-medium shadow-large">\n' +
+                    '        <div class="caption-center right-15 top-15 text-right">\n' +
+                    '            <a href="/balance?fin_use_num=' + resultElement.fintech_use_num + '" class="back-button button button-xs button-round-huge bg-highlight">잔액조회</a>\n' +
+                    '            <a href="#" class="button button-xs button-round-huge bg-highlight">결제</a>\n' +
+                    '            <a href="#" onclick="deleteAccount(\'' + resultElement.fintech_use_num + '\')" class="button button-xs button-round-huge bg-highlight">X</a>\n' +
+                    '        </div>\n' +
+                    '        <div class="caption-center left-15 text-left">\n' +
+                    '            <h1 class="color-white bolder">' + resultElement.account_alias + '</h1>\n' +
+                    '            <p class="under-heading color-white opacity-90 bottom-0">\n' +
+                    '                ' + resultElement.fintech_use_num +
+                    '            </p>\n' +
+                    '        </div>\n' +
+                    '        <div class="caption-overlay bg-black opacity-70"></div>\n' +
+                    '        <div class="caption-bg bg-18"></div>\n' +
+                    '    </div>\n'
+                )
+            }
+        }
+    })
+
+</script>
+<% include ./hf/footer.ejs %>

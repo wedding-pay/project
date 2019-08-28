@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <title>Kisa-Pay</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i|Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i,900,900i" rel="stylesheet">
+    <script type="text/javascript" src="scripts/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+    <link rel="stylesheet" type="text/css" href="styles/framework.css">
+    <link rel="stylesheet" type="text/css" href="fonts/css/fontawesome-all.min.css">
+</head>
+
+<body class="theme-light" data-background="none" data-highlight="blue2">
+<div id="myModal" class="modal">
+    
+    <div class="modal-content">
+
+        <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
+            <label>이름 : <input type="text" id="name"></label>
+        </div>
+        <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
+            <label>금액 : <input type="text" id="money"></label>
+        </div>
+        <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
+            <label>메모 : <input type="text" id="coment"></label>
+        </div>
+        <button id="cancleBtn" style="font-size: 13pt; padding: 10px">취소</button>
+        <button id="sendBtn" style="font-size: 13pt; padding: 10px" onclick="">송금</button>
+    </div>
+</div>
+<video id="preview" style="margin-left: 10vh; margin-top: 15vh; margin-bottom: 10vh"  ></video>
+<script src="/scripts/instascan.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript">
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+    scanner.addListener('scan', function (content) {
+        $.ajax({
+            url: 'http://localhost:3000/check',
+            type: 'POST',
+            headers: {
+                'x-access-token': sessionStorage.getItem('jwtToken')
+            },
+            data: {
+                qrFin : content
+            },
+            success: function (data) {  // 가입한 혼주들 중 누군지 확인
+                alert(data.name);
+                jQuery(document).ready(function(){
+                    $('#myModal').show();
+                })
+            }
+        })
+    });
+    Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+            scanner.start(cameras[0]);
+        } else {
+            console.error('No cameras found.');
+        }
+    }).catch(function (e) {
+        console.error(e);
+    });
+
+    //팝업 Close 기능
+    $("#cancleBtn").click(function(){
+        $('#myModal').hide();
+    })
+
+    $("#sendBtn").click(function(){
+        $.ajax({
+            url : "http://localhost:3000/withdrawQR",
+            type : 'post',
+            data : {
+                name : $("#name").val(),
+                money : $("#money").val(),
+                coment : $("#coment").val(),
+            },
+            success : function(data){
+                alert(data);
+            }
+        })
+    })
+    
+</script>
+</body>
