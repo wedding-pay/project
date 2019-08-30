@@ -13,15 +13,20 @@
 </head>
 
 <body class="theme-light" data-background="none" data-highlight="blue2">
-<div id="myModal" class="modal">
-    
-    <div class="modal-content">
 
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <div style="font-size:15pt; color:violet; padding-bottom:15px; padding-top:15px;">
+            <label id="pname"></label>
+        </div>
+        <div style="font-size:15pt; color:violet; padding-bottom:15px; padding-top:15px;">
+                <label id="paccount"></label>
+            </div>
         <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
             <label>이름 : <input type="text" id="name"></label>
         </div>
         <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
-            <label>금액 : <input type="text" id="money"></label>
+            <label>금액 : <input type="text" id="amount"></label>
         </div>
         <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
             <label>메모 : <input type="text" id="coment"></label>
@@ -30,7 +35,8 @@
         <button id="sendBtn" style="font-size: 13pt; padding: 10px" onclick="">송금</button>
     </div>
 </div>
-<video id="preview" style="margin-left: 10vh; margin-top: 15vh; margin-bottom: 10vh"  ></video>
+<div style="font-size:20pt; margin-left: 26vh; margin-top: 15vh;" > <축의금 전송 QR code Reader></div>
+<video id="preview" style="margin-left: 10vh; margin-top: 5vh; margin-bottom: 10vh"  ></video>
 <script src="/scripts/instascan.min.js"></script>
 <script src="https://code.jquery.com/jquery-latest.js"></script>
 <script type="text/javascript">
@@ -46,7 +52,8 @@
                 qrFin : content
             },
             success: function (data) {  // 가입한 혼주들 중 누군지 확인
-                alert(data.name);
+                $("#pname").html('혼주이름 : '+data.name);
+                $("#paccount").html('혼주 계좌 : '+data.bankAccount);
                 jQuery(document).ready(function(){
                     $('#myModal').show();
                 })
@@ -74,11 +81,27 @@
             type : 'post',
             data : {
                 name : $("#name").val(),
-                money : $("#money").val(),
+                amount : $("#amount").val(),
                 coment : $("#coment").val(),
             },
             success : function(data){
-                alert(data);
+                if(data==1){
+                    alert("정상적으로 출금이 완료되었습니다.");
+                    alert("식권이 발급되었습니다.");
+                    // 식권 발급, 홈 화면으로 이동
+                    // db flag =1로 수정
+                    $.ajax({
+                        url : "http://localhost:3000/update",
+                        type : 'post',
+                        data : {
+                            name : $("#name").val(),
+                        },
+                        success : function(data){
+                            alert(data);
+                        }
+                    })
+                    window.location.href='http://localhost:3000/main2';
+                }
             }
         })
     })
