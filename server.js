@@ -6,10 +6,12 @@ var request = require('request');
 var jwt = require('jsonwebtoken');
 var QrCode = require('qrcode-reader');
 var auth = require('./auth');
+const session =require('express-session');
+const FileStore=require('session-file-store')(session);
 var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '1234',
+    host     : 'w-pay-db.c25yssgmzxfy.ap-southeast-2.rds.amazonaws.com',
+    user     : 'admin',
+    password : 'wpayadmin',
     database : 'fintech'
 });
 
@@ -21,6 +23,12 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 app.use(express.static(path.join(__dirname+'/public')));
+app.use(session({  // 2
+    secret: 'keyboard cat',  // 암호화
+    resave: false,
+    saveUninitialized: true,
+    store: new FileStore()
+  }));
 
 app.get("/main", function(req,res){
 	res.render("main");
@@ -46,8 +54,13 @@ app.get("/qrTicketReader", function(req,res){
 })
 
 app.get("/mealQr", function(req,res){
-    res.render("mealQr");
+    res.render("mealQr",req.query);
 })
+
+app.get("/mealQr2", function(req,res){
+    res.render("mealQr2",req.query);
+})
+
 app.get("/signup", function(req, res){
     res.render("signup");
 })
@@ -63,10 +76,84 @@ app.get("/guestList", function(req, res){
     res.render("guestList");
 })
 
+app.get("/mealTicket", function(req, res){
+    res.render("mealTicket", req.query);
+})
+
+app.get("/getTicket", function(req, res){
+    res.render("getTicket");
+})
+
+// ---------------------- 수정 -------------------------
+
+app.get("/admainPage", function(req,res){
+    res.render("admainPage");
+})
+app.get("/adminMainPage2", function(req,res){
+    res.render("adminMainPage2");
+})
+
+app.get("/cal", function(req,res){
+    console.log(req.query)
+    res.render("cal", req.query);
+})
+
+app.get('/createHostQR', function(req, res){
+    res.render('createHostQR', req.query);
+})
+
+app.post('/adminMainPage1', function(req, res){
+    var hostName = req.body.hostName;
+    var sql = "SELECT no FROM user WHERE name = ?"    
+    connection.query(sql, [hostName], function(err, result){
+        if(err){
+            console.error(err);
+            throw err;
+        }
+        else {
+            //console.log(result);
+            res.json(result[0]);
+            //res.render('cal');
+        }
+    })
+  })
+
+app.post('/adminMainPage2', function(req, res){
+    var hostName = req.body.hostName;
+    var sql = "SELECT cal.moneygift, cal.meal_cnt, cal.meal_price, cal.total_price, user.name FROM user JOIN cal ON user.cal_id = cal.id WHERE name = ?"    
+    connection.query(sql, [hostName], function(err, result){
+        if(err){
+            console.error(err);
+            throw err;
+
+        }
+        else {
+            res.json(result[0])
+        }
+    })
+  })  
+
+  app.post('/cal', function(req, res){
+      var hostName = req.body.hostName;
+      var sql = "SELECT user.no FROM user WHERE name = ? "
+      connection.query(sql,[hostName],function(err, result){
+        if (err) {
+            console.log(err);
+            throw err;  
+        }
+        else {
+            console.log(result);
+        }
+    });
+  })
+
+// ---------------수정 end --------------------------------
+
 app.post("/guestList", function(req,res){
-    var keynum = req.body.keynum
-    var sql = "SELECT * FROM qrpay WHERE keynum = ?"
-    connection.query(sql,[keynum], function(err, result){
+    var hostnum = req.session.user_no;
+    console.log(hostnum);
+    var sql = "SELECT * FROM qrpay where hostnum= ?"
+    connection.query(sql,['3'],function(err, result){
         if (err) {
             console.log(err);
             throw err;  
@@ -78,6 +165,21 @@ app.post("/guestList", function(req,res){
     });
 })
 
+app.post("/payList", function(req,res){
+    // var keynum = req.body.keynum
+     var name = req.session.user_id;
+     var sql = "SELECT * FROM qrpay where name=?"
+     connection.query(sql,['이한울'],function(err, result){
+         if (err) {
+             console.log(err);
+             throw err;  
+         }
+         else {
+            console.log(result);
+            res.json(result);
+       }
+     });
+ })
 app.post("/update", function(req,res){
     var name = req.body.name;
     var sql = "UPDATE `fintech`.`user` SET flag=1 WHERE name = ?"
@@ -120,10 +222,11 @@ app.post("/updateTicket", function(req,res){
       }
     });
 })
+
 app.post("/check", function(req, res){
-    var id = 1;
-    var sql = "SELECT * FROM marrieduser WHERE id = ?"
-    connection.query(sql,[id], function(err, result){
+    var no = 3; // 혼주의 user no
+    var sql = "SELECT user.no, user.name, bankaccount.account FROM user LEFT JOIN bankaccount ON user.no=bankaccount.user_no WHERE user.no=?"
+    connection.query(sql,[no], function(err, result){
         if (err) {
             console.log(err);
             throw err;  
@@ -136,13 +239,15 @@ app.post("/check", function(req, res){
 })
 
 app.post('/withdrawQR', function(req, res){
+    var user_no = 1; // req.body.no;  => 로그인한 유저no (하객)
     var name = req.body.name;
     var amount = req.body.amount;
     var coment = req.body.coment;
-    var sql = "SELECT * FROM user WHERE name = ?"
-    var sql2 = "INSERT INTO `fintech`.`qrpay`(`name`, `amount`, `coment`) "
-    + "VALUES (?,?,?)"
-    connection.query(sql,[name], function(err, result){
+    var hostnum = req.body.hostnum;
+    var sql = "SELECT * FROM user WHERE no = ?"
+    var sql2 = "INSERT INTO `fintech`.`qrpay`(`name`, `amount`, `coment`,`date`,`hostnum`,`user_no`) "
+    + "VALUES (?,?,?,now(),?,?)"
+    connection.query(sql,[user_no], function(err, result){ // 고객 계좌에서 출금.
         if (err) {
             console.log(err);
             throw err;  
@@ -162,19 +267,19 @@ app.post('/withdrawQR', function(req, res){
                     tran_dtime : '20190829135600'
                 }
             };
-            request(option, function(err, response, body){
+            request(option, function(err, response, body){ // 출금정보 이용기관에 저장.
                 if(err) throw err;
                 else {
                     //console.log(body);
-                    //res.json(body);
-                    connection.query(sql2, [name, amount, coment], function(err, result){
+                    connection.query(sql2, [name, amount, coment, hostnum, user_no], function(err, result){
                         console.log(result);
                         if(err){
                             console.error(err);
                             throw err;
                         }
                         else{
-                            res.json(1);
+                            //console.log(result.insertId);
+                            res.json({qrpayNo: result.insertId, isSuccess: true});
                         }
                     });
 
@@ -183,6 +288,24 @@ app.post('/withdrawQR', function(req, res){
       }
     });
     
+})
+
+app.post("/getTicket", function(req, res){
+    var ticketnum = req.body.ticketnum;
+    var count = req.body.count;
+    var qrpay_no = req.body.qrpay_no;
+    var sql = "INSERT INTO `fintech`.`meal`(`ticketnum`, `count`,`qrpay_no`) "
+    + "VALUES (?,?,?)"
+    connection.query(sql,[ticketnum,count,qrpay_no], function(err, result){
+        if (err) {
+            console.log(err);
+            throw err;  
+        }
+        else {
+            console.log(result);
+            res.json({mealNo:result.insertId});
+        }
+    });
 })
 
 app.post('/deposit', function(req, res){
@@ -265,7 +388,7 @@ app.post('/signup', function(req, res){
             code : auth_code,
             client_id : "l7xx1ce33c1b22ff4b828d6ed1205e308d56",
             client_secret : "782e68e841d949a6b19143e61d870255",
-            redirect_uri : "http://localhost:3000/callback",
+            redirect_uri : "/callback",
             grant_type : "authorization_code"
         }
     };
@@ -324,16 +447,15 @@ app.post('/signup', function(req, res){
                   res.render('resultChild2', {data : gr})
               }
           })
-      
       });
   })
   
   app.post('/login', function(req, res){
-      var userEmail = req.body.userEmail;
+      var userid = req.body.userid;
       var userPassword = req.body.password;
-      console.log(userEmail, userPassword);
+      console.log(userid, userPassword);
       var sql = "SELECT * FROM user WHERE name = ?";
-      connection.query(sql, [userEmail, userPassword], function(err, results){
+      connection.query(sql, [userid, userPassword], function(err, results){
           if(err){
               throw err;
           }

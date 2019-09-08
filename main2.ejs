@@ -1,0 +1,49 @@
+<% include ./hf/header.ejs %>
+<div class="page-content header-clear-medium">
+    <div id = 'cardList'>    
+    </div>
+
+    <div class="content-boxed content-boxed-full">
+        <div class="content bottom-0">
+            <div class="link-list link-list-2">
+                <a href="http://localhost:3000/qrcodeReader" class="no-border">
+                    <i class="fa fa bg-blue2-dark round-tiny"></i>
+                    <span>QR코드 이체</span>
+                    <strong>축의금내고 식권을 받자</strong>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                <div class="link-list link-list-2">
+                    <a id="ticketBtn">
+                        <i class="fa fa bg-green1-dark round-tiny"></i>
+                        <span >식권</span>
+                        <strong>밥먹자</strong>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                    
+                </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#ticketBtn").click(function(){
+        // 식권을 발급 받았는지 확인
+        $.ajax({
+            url:'http://localhost:3000/checkTicket',
+            type : 'POST',
+            data : {
+                name : 'hanul'
+            },
+            success:function(data){
+                console.log(data);
+                if(data==1){ // 축의금을 냈으면 식권 사용가능
+                    window.location.href='http://localhost:3000/mealQr';
+                }else if(data==0){
+                    alert("돈내고 오세요");
+                }else{
+                    alert("식권이 만료되었습니다.");
+                }
+            }
+        })
+    });
+</script>
+<% include ./hf/footer.ejs %>

@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        <title>Wedding-Pay</title>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i|Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i,900,900i" rel="stylesheet">
+        <script type="text/javascript" src="scripts/jquery.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles/style.css">
+        <link rel="stylesheet" type="text/css" href="styles/framework.css">
+        <link rel="stylesheet" type="text/css" href="fonts/css/fontawesome-all.min.css">
+    </head>
+    <body class="theme-light" data-background="none" data-highlight="blue2">
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div style="font-size:20pt; color:whitesmoke; background-color: black; margin-bottom: 10px; text-align: center; padding: 10px">
+                    <label>식권 발급 서비스</label>
+                </div>
+                <div style="font-size:15pt; color:black; padding-bottom:15px; padding-top:15px;">
+                    <label>식권 QR코드가 발급될 예정입니다.</label>
+                    <label>식권을 받으시겠습니까?</label>
+                    <hr>
+                </div>
+                <div>
+                    <button id="yesBtn" class="button button-m shadow-small bg-blue2-dark" style="font-size: 13pt; padding: 10px">예  </button>
+                    <button id="cancleBtn" class="button button-m shadow-small bg-blue2-dark" style="font-size: 13pt; padding: 10px" >아니요 </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="myModal2" class="modal">
+            <div class="modal-content">
+                <div style="font-size:20pt; color:whitesmoke; background-color: black; margin-bottom: 10px; text-align: center; padding: 10px">
+                        <label>식권 발급 서비스</label>
+                </div>
+                <div style="font-size:15pt; color:black; padding-bottom:15px; padding-top:15px;">
+                    <label>원하는 식권의 개수를 입력해주세요.</label>
+                    <label><input type="text" id="ticketnum">개</label>
+                    <hr>
+                </div>
+                <button id="ticketBtn" class="button button-m shadow-small bg-blue2-dark" style="font-size: 13pt; padding: 10px" > 발급 </button>
+            </div>
+        </div> 
+        <div><input type="hidden" id="qrpayNo" value="<%= qrpayNo %>"></div>
+        <script>
+            jQuery(document).ready(function(){
+                $('#myModal').show();
+            })
+
+            $("#cancleBtn").click(function(){
+                $('#myModal').hide();
+                window.location.href='/main2';
+            })
+
+            $("#yesBtn").click(function(){
+                // 식권 발급여부 팝업창 hide(), 식권개수 입력 팝업창 show()
+                $('#myModal').hide();
+                $('#myModal2').show();
+            })
+            $("#ticketBtn").click(function(){
+                // n개의 식권 발급, 식권 정보 DB에 저장
+                //alert($('#qrpayNo').val());
+                $.ajax({  
+                    url : "/getTicket",
+                    type : 'post',
+                    data : {
+                        ticketnum : $("#ticketnum").val(),
+                        count : 0,
+                        qrpay_no : $("#qrpayNo").val()
+                    },
+                    success : function(data){  // 식권 no로 QR생성.
+                        alert("식권이 정상적으로 발급되었습니다.");
+                        window.location.href='/mealQr?mealNo='+data.mealNo;
+                    }
+                })
+            })
+
+        </script>
+        <script type="text/javascript" src="scripts/plugins.js"></script>
+        <script type="text/javascript" src="scripts/custom.js"></script>
+    </body>
+</html>

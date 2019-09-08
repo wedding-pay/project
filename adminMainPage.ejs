@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>관리페이지</title>
+</head>
+
+<body>
+        <p1>관리페이지</p1>
+        <br><br><br>
+
+        혼주이름 <input type="name" id="hostName" placeholder = "hostname">
+
+        <!-- <div class="input-style has-icon input-style-1 input-required">
+                <i class="input-icon fa fa-user font-11"></i>
+                <span>혼주이름</span>
+                <em>(required)</em>
+                <input type="name" id="hostName" placeholder = "hostname">
+        </div> -->
+
+        <button id="searchBtn" href="#" class="button button-full button-m shadow-large button-round-small bg-green1-dark top-10 bottom-0">검색</button> <br><br>
+        <button id="createQRBtn" href="#" class="button button-full button-m shadow-large button-round-small bg-green1-dark top-10 bottom-0">QR 생성</button>
+        <button id="calInfoBtn" href="#" class="button button-full button-m shadow-large button-round-small bg-green1-dark top-10 bottom-0">예식비 정산</button>
+
+<script type="text/javascript" src="scripts/jquery.js"></script>
+<script type="text/javascript" src="scripts/plugins.js"></script>
+<script type="text/javascript" src="scripts/custom.js"></script>
+
+<script>
+$("#searchBtn").click(function(){
+        /*$.ajax({
+            url : "http://localhost:3000/adminMainPage",
+            type : 'post',
+            data : {
+                hostName : $("#hostName").val(),
+            },
+            success: function(data){
+                console.log(data);
+            }
+         })*/
+})
+
+$("#createQRBtn").click(function(){
+        $.ajax({
+            url : "http://localhost:3000/adminMainPage1",
+            type : 'post',
+            data : {
+                hostName : $("#hostName").val(),
+            },
+            success: function(data){
+                console.log(data);
+                location.href = 'createHostQR?no=' + data.no;
+            }
+         })
+})
+
+$("#calInfoBtn").click(function(){
+        $.ajax({
+            url : "http://localhost:3000/adminMainPage2",
+            type : 'post',
+            data : {
+                hostName : $("#hostName").val(),
+            },
+            success: function(data){
+                location.href = 'cal?moneygift=' + data.moneygift + '&meal_cnt=' + data.meal_cnt + '&meal_price=' + data.meal_price + '&total_price=' + data.total_price + '&name=' + data.name;
+            }
+        })
+})
+</script>
+</body>
+</html>

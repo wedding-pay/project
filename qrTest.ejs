@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <title>Wedding-Pay</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i|Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i,900,900i" rel="stylesheet">
+    <script type="text/javascript" src="scripts/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+    <link rel="stylesheet" type="text/css" href="styles/framework.css">
+    <link rel="stylesheet" type="text/css" href="fonts/css/fontawesome-all.min.css">
+</head>
+
+<body class="theme-light" data-background="none" data-highlight="blue2">
+<div id="myModal" class="modal">
+    <div class="modal-content" style="z-index:100;">
+        <div style="background-color: black; margin-bottom: 10px; text-align: center">
+            <div style="font-size:20pt; color:whitesmoke; font-weight: 500; padding-bottom:5px; padding-top:15px;">
+                    <label id="pname"></label>
+            </div>
+            <div style="font-size:15pt; color:yellow; font-weight: 500; padding-bottom:20px; padding-top:5px;">
+                    <label id="paccount"></label>
+            </div>
+        </div>
+        
+        <!-- <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
+            <label>이름 : <input type="text" id="name"></label>
+        </div> -->
+        
+        <div class="input-style input-style-2 input-required">
+            <span class="input-style-1-inactive">이름</span>
+            <em>(필수)</em>
+            <input type="text" placeholder="" id="name">
+        </div>
+        <div class="input-style input-style-2 input-required">
+            <span class="input-style-1-inactive">금액</span>
+            <em>(필수)</em>
+            <input type="text" placeholder="" id="amount">
+        </div>
+        <div class="input-style input-style-2 input-required">
+            <span class="input-style-1-inactive">메모</span>
+            <em>(필수)</em>
+            <input type="text" placeholder="" id="coment">
+        </div>
+        <!-- <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
+            <label>금액 : <input type="text" id="amount"></label>
+        </div>
+        <div style="font-size:13pt; color:white; padding-bottom:15px; padding-top:15px;">
+            <label>메모 : <input type="text" id="coment"></label>
+        </div> -->
+        <input type="hidden" id="hostnum" />
+        <div style="text-align: center;">
+            <button id="cancleBtn" class="button button-m shadow-small bg-blue2-dark">취소</button>
+            <button id="sendBtn" class="button button-m shadow-small bg-blue2-dark">송금</button>
+        </div>
+    </div>
+</div>
+<div style="font-size:20pt; margin-left: 26vh; margin-top: 15vh;" > <축의금 전송 QR code Reader></div>
+<video id="preview" style="margin-left: 10vh; margin-top: 5vh; margin-bottom: 10vh"  ></video>
+<script src="/scripts/instascan.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript">
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+    scanner.addListener('scan', function (content) {
+        $.ajax({
+            url: '/check',
+            type: 'POST',
+            headers: {
+                'x-access-token': sessionStorage.getItem('jwtToken')
+            },
+            data: { // 혼주의 user no
+                qrFin : content
+            },
+            success: function (data) {  // 가입한 혼주들 중 누군지 확인
+                $('#hostnum').val(data.no);
+                $("#pname").html(data.name + '님');
+                $("#paccount").html('NH농협은행 : '+data.account);
+                jQuery(document).ready(function(){
+                    $('#myModal').show();
+                })
+            }
+        })
+    });    
+    Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+            scanner.start(cameras[0]);
+        } else {
+            console.error('No cameras found.');
+        }
+    }).catch(function (e) {
+        console.error(e);
+    });
+
+    //팝업 Close 기능
+    $("#cancleBtn").click(function(){
+        $('#myModal').hide();
+    })
+
+    $("#sendBtn").click(function(){
+        $.ajax({
+            url : "/withdrawQR",
+            type : 'post',
+            data : {
+                name : $("#name").val(),
+                amount : $("#amount").val(),
+                coment : $("#coment").val(),
+                hostnum : $("#hostnum").val()
+            },
+            success : function(data){
+                if(data.isSuccess){
+                    alert("정상적으로 출금이 완료되었습니다.");
+                    // 식권을 발급 받을건지 체크. 
+                    window.location.href='/mealTicket?qrpayNo=' + data.qrpayNo;
+                }
+            }
+        })
+    })    
+</script>
+</div>
+<script type="text/javascript" src="scripts/plugins.js"></script>
+<script type="text/javascript" src="scripts/custom.js"></script>
+</body>

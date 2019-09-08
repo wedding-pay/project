@@ -1,0 +1,66 @@
+<% include ./hf/header.ejs %>
+<div class="page-content header-clear-medium">   
+
+    <div class="content-boxed content-boxed-full">
+        <div data-height="350" class="caption shadow-large bottom-0" style="height: 350px;">
+            <div class="caption-bottom bottom-15 left-15">
+                <h1 class="color-white bolder font-30">W-Pay</h1>
+                <p class="under-heading color-white opacity-90">
+                    Fast Loading and Absolutely Awesome
+                </p>
+            </div>
+            <div class="caption-overlay bg-black opacity-60"></div>
+            <div class="caption-bg bg-14"></div>
+        </div>  
+    </div>
+    
+    <div class="content-boxed">
+        <div class="content bottom-0">
+            <div class="divider top-20"></div>
+            <h4 class="bolder">This is an Image Gallery</h4>
+            <p>
+                This page is not WordPress, it's an HTML website. Yes, that's right. but you can convert it to WordPress yourself or hire an expert from Envato Studio.
+            </p>
+            <div class="gallery gallery-thumbs gallery-rounded">
+                <a href="/qrcodeReader" id="qrBtn" class="show-gallery filtr-item" title="Sweet Creams"><img src="images/icons/pay2.png" data-src="images/icons/pay2.png" class="preload-image shadow-medium" alt="img"></a>
+                <a href="/mealQr2" id="ticketBtn" class="show-gallery filtr-item" title="Typeweritter"><img src="images/icons/ticket1.png" data-src="images/icons/ticket1.png" class="preload-image shadow-medium" alt="img"></a>
+                <a id="mypageBtn" class="show-gallery filtr-item" title="Autumn Leave"><img src="images/icons/mypage.png" data-src="images/icons/mypage.png" class="preload-image shadow-medium" alt="imag"></a> 
+            </div>
+            <div class="demo-buttons">
+                <a href="/qrcodeReader" class="button button-3d button-m button-circle shadow-small border-red2-dark bg-red2-light">QR송금</a>
+                <a href="/mealQr2" id="ticketBtn" class="button button-3d button-m button-circle shadow-small border-green1-dark bg-green1-light">식권</a>
+                <a id="mypageBtn" class="button button-3d button-m button-circle shadow-small border-blue2-dark bg-blue2-light">마이페이지</a>
+            </div>
+            <div class="divider"></div>
+            <div class="divider"></div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#qrBtn").click(function(){
+        // 식권을 발급 받았는지 확인
+        $.ajax({
+            url:'/qrcodeReader',
+            type : 'GET',
+        })
+    });
+    $("#ticketBtn").click(function(){
+        // 식권을 발급 받았는지 확인
+        $.ajax({
+            url:'/checkTicket',
+            type : 'POST',
+            data : {
+                name : 'hanul'
+            },
+            success:function(data){
+                
+            }
+        })
+    });
+    $("#mypageBtn").click(function(){
+        // 식권을 발급 받았는지 확인
+        window.location.href='http://localhost:3000/guestList';
+    });
+</script>
+<% include ./hf/footer.ejs %>

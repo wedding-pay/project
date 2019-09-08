@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>관리페이지</title>
+</head>
+
+<body>
+    <p>
+        혼주 : <%= name %> <br><br>
+
+        축의금 총액 : <%= moneygift %> <br><br>
+        * 1인 식대비 : 20,000원 <br>
+        발급된 식권 개수 : <%= meal_cnt %> <br>
+        총 식대비 : <%= meal_price %> <br><br>
+
+        차     액 : <%= total_price %> <br>
+    </p>
+
+    <button id="calBtn" href="#" class="button button-full button-m shadow-large button-round-small bg-green1-dark top-10 bottom-0">정산</button>
+
+    <script type="text/javascript" src="scripts/jquery.js"></script>
+    <script type="text/javascript" src="scripts/plugins.js"></script>
+    <script type="text/javascript" src="scripts/custom.js"></script>
+
+    <script>
+    $("#calBtn").click(function(){ //계좌로 송금
+        $.ajax({
+            url : "http://localhost:3000/cal",
+            type : 'post',
+            data : {
+                hostName : "김자연",
+            },
+            success: function(data){
+                if(data == 1) alert("혼주님께 정산 비용이 송금되었습니다.");
+                else alert("정산비용 송금 실패");
+            }
+         })
+    })
+    
+    </script>
+</body>
+</html>
